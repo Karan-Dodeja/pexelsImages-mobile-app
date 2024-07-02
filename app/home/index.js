@@ -4,12 +4,18 @@ import { useSafeAreaFrame } from "react-native-safe-area-context";
 import { theme } from "../../constants/theme";
 import { ScrollView, TextInput } from "react-native-web";
 import { useState } from "react";
+import Categories from "../../components/categories";
 
 const HomeScreen = () => {
   const { top } = useSafeAreaFrame();
   const paddingTop = top > 0 ? top + 10 : 30;
   const [search, setSearch] = useState("");
+  const [activeCategory, setActiveCategory] = useState(null);
   const searchInputRef = useRef(null);
+
+  const handleChangeCategory = (cat) => {
+    setActiveCategory(cat);
+  };
   return (
     <View style={[styles.container, { paddingTop }]}>
       {/* Header */}
@@ -48,6 +54,12 @@ const HomeScreen = () => {
                 />
               </Pressable>
             )}
+          </View>
+          <View style={styles.categories}>
+            <Categories
+              activeCategory={activeCategory}
+              handleChangeCategory={handleChangeCategory}
+            />
           </View>
         </ScrollView>
       </View>
