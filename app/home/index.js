@@ -4,10 +4,11 @@ import { View, Text, StyleSheet, Pressable } from "react-native";
 import { useSafeAreaFrame } from "react-native-safe-area-context";
 import { theme } from "../../constants/theme";
 import { ScrollView, TextInput } from "react-native-web";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Categories from "../../components/categories";
 import { apiCall } from "../../api";
 import ImageGrid from "../../components/imageGrid";
+import FiltersModal from "../../components/filtersModal";
 
 var page = 1;
 
@@ -18,6 +19,8 @@ const HomeScreen = () => {
   const [activeCategory, setActiveCategory] = useState(null);
   const searchInputRef = useRef(null);
   const [images, setImages] = useState([]);
+  const [filters, setFilters] = useState(null);
+  const modalRef = useRef(null);
 
   useEffect(() => {
     fetchImages();
@@ -34,6 +37,24 @@ const HomeScreen = () => {
       }
     }
     console.log("got results: ", res.data?.hits[0]);
+  };
+
+  const openFiltersModal = () => {
+    modalRef?.current?.present();
+  };
+
+  const closeFiltersModal = () => {
+    modalRef?.current?.close();
+  };
+
+  const applyFilters = () => {
+    console.log("applied filter");
+    closeFiltersModal();
+  };
+
+  const resetFilters = () => {
+    console.log("r filter");
+    closeFiltersModal();
   };
 
   const handleChangeCategory = (cat) => {
@@ -81,7 +102,7 @@ const HomeScreen = () => {
         <Pressable>
           <Text style={styles.title}>Pixels</Text>
         </Pressable>
-        <Pressable>
+        <Pressable onPress={openFiltersModal}>
           <FontAwesome6
             name="bars-staggered"
             size={22}
@@ -126,6 +147,14 @@ const HomeScreen = () => {
           {/* Images Masonry Grid */}
           <View>{images.length > 0 && <ImageGrid images={images} />}</View>
         </ScrollView>
+        <FiltersModal
+          filters={filters}
+          setFilters={setFilters}
+          onClose={closeFiltersModal}
+          onApply={applyFilters}
+          onReset={resetFilters}
+          modalRef={modalRef}
+        />
       </View>
     </View>
   );
