@@ -25,14 +25,16 @@ const HomeScreen = () => {
   const [activeCategory, setActiveCategory] = useState(null);
   const searchInputRef = useRef(null);
   const [images, setImages] = useState([]);
+  const scrollRef = useRef(null);
   const [filters, setFilters] = useState(null);
   const modalRef = useRef(null);
+  const [isEndReached, setIsEndReached] = useState(false);
 
   useEffect(() => {
     fetchImages();
   }, []);
 
-  const fetchImages = async (params = { page: 1 }, append = false) => {
+  const fetchImages = async (params = { page: 1 }, append = true) => {
     console.log("params:", params, append);
     let res = await apiCall(params);
     if (res.success && res?.data?.hits) {
@@ -148,13 +150,48 @@ const HomeScreen = () => {
     fetchImages(params, false);
   };
 
+  const handleScroll = (e) => {
+    const contentHeight = e.nativeEvent.contentSize.height;
+    const scrollViewHeight = e.nativeEvent.layoutMeasurement.height;
+    const scrollOffset = event.nativeEvent.contentOffset.y;
+    const bottomPosition = contentHeight - scrollViewHeight;
+
+    if (scrollOffset >= bottomPosition - 1) {
+      if (!isEndReached) {
+        setIsEndReached(true);
+        // fetch images
+        ++page;
+        let params = {
+          page,
+          ...filters,
+        };
+        if (activeCategory) {
+          params.category = activeCategory;
+        }
+        if (search) {
+          params.q = search;
+        }
+        fetchImages(params);
+      }
+    } else if (isEndReached) {
+      setIsEndReached(false);
+    }
+  };
+
+  const handleScrollUp = (e) => {
+    scrollRef?.current?.scrollTop({
+      y: 0,
+      animated: true,
+    });
+  };
+
   const handleTextDebounce = useCallback(debounce(handleSearch, 400), []);
 
   return (
     <View style={[styles.container, { paddingTop }]}>
       {/* Header */}
       <View style={styles.header}>
-        <Pressable>
+        <Pressable onPress={handleScrollUp}>
           <Text style={styles.title}>Pixels</Text>
         </Pressable>
         <Pressable onPress={openFiltersModal}>
@@ -204,6 +241,9 @@ const HomeScreen = () => {
               <ScrollView
                 horizontal
                 showHorizontalScrollIndicator={false}
+                onScroll={handleScroll}
+                scrollEventThrottle={5}
+                ref={scrollRef}
                 contentContainerStyle={styles.filters}
               >
                 {Object.keys(filters).map((key, index) => {
