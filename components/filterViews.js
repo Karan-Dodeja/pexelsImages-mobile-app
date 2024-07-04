@@ -47,11 +47,11 @@ export const ColorFilter = ({ data, filters, setFilters, filerName }) => {
       {data &&
         data.map((item, index) => {
           let isActive = filters && filters[firstname] == item;
-          let borderColor  = isActive ? theme.colors.neutral(0.4) : 'white';
+          let borderColor = isActive ? theme.colors.neutral(0.4) : "white";
 
           return (
             <Pressable onPress={() => onSelect(item)} key={item}>
-              <View style={[styles.colorWrapper, {borderColor}]}>
+              <View style={[styles.colorWrapper, { borderColor }]}>
                 <View style={[styles.color, { backgroundColor: item }]} />
               </View>
             </Pressable>
@@ -84,12 +84,12 @@ const styles = StyleSheet.create({
   color: {
     height: 30,
     width: 40,
-    borderRadius: theme.radius.sm-3,
+    borderRadius: theme.radius.sm - 3,
     borderCurve: "continuous",
   },
   colorWrapper: {
-    borderWidth: 2, 
-    borderCurve: 'continuous'
+    borderWidth: 2,
+    borderCurve: "continuous",
     padding: 3,
     borderRadius: 3,
   },

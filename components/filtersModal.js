@@ -3,8 +3,9 @@ import { BlurView } from "expo-blur";
 import { useMemo } from "react";
 import { View, Text, Pressable } from "react-native";
 import { theme } from "../constants/theme";
-import {
+import Animated, {
   Extrapolation,
+  FadeInDown,
   interpolate,
   useAnimatedStyle,
 } from "react-native-reanimated";
@@ -37,7 +38,12 @@ const FiltersModal = ({
             let title = capitalize(sectionName);
             let sectionData = data.filters[sectionName];
             return (
-              <View key={sectionName}>
+              <Animated.View
+                entering={FadeInDown.delay(index * 100 + 100)
+                  .springify()
+                  .damping(11)}
+                key={sectionName}
+              >
                 <SectionView
                   title={title}
                   content={sectionView({
@@ -47,11 +53,14 @@ const FiltersModal = ({
                     filerName: sectionName,
                   })}
                 />
-              </View>
+              </Animated.View>
             );
           })}
 
-          <View style={styles.buttons}>
+          <Animated.View
+            entering={FadeInDown.delay(500).springify().damping(11)}
+            style={styles.buttons}
+          >
             <Pressable style={styles.resetButton} onPress={onReset}>
               <Text
                 style={[
@@ -67,7 +76,7 @@ const FiltersModal = ({
                 Apply
               </Text>
             </Pressable>
-          </View>
+          </Animated.View>
         </View>
       </BottomSheetView>
     </BottomSheetModal>
