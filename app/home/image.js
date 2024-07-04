@@ -7,15 +7,24 @@ import {
   Text,
   StyleSheet,
   ActivityIndicatorComponent,
+  Pressable,
+  Alert,
 } from "react-native";
 import { theme } from "../../constants/theme";
-import { wp } from "../../helpers/common";
+import { hp, wp } from "../../helpers/common";
+import { Octicons } from "@expo/vector-icons";
+import Animated, { FadeInDown } from "react-native-reanimated";
+import * as FileSystem from "expo-file-system";
+import * as Sharing from "expo-sharing";
 
 const ImageScreen = () => {
   const router = useRoute();
   const item = useLocalSearchParams();
   const [status, setStatus] = useState("loading");
   let uri = item?.webformatURL;
+  const fileName = item?.previewURL?.split("/").pop();
+  const imageUrl = uri;
+  const filePath = `${FileSystem.documentDirectory}${fileName}`;
   const onLoad = () => {
     setStatus("");
   };
@@ -33,6 +42,31 @@ const ImageScreen = () => {
       height: calculatedHeight,
     };
   };
+  const handleDownImage = async () => {
+    setStatus("downloading");
+    let uri = await downloadImage();
+    if (uri) {
+      await Sharing.shareAsync(uri);
+    }
+  };
+  const handleShareImage = async () => {
+    setStatus("sharing");
+    let uri = await downloadImage();
+    if (uri) {
+    }
+  };
+  const downloadImage = async () => {
+    try {
+      const { uri } = await FileSystem.downloadAsync(imageUrl, filePath);
+      setStatus("");
+      return uri;
+    } catch (error) {
+      console.log(error);
+      setStatus("");
+      Alert.alert("Image", error.message);
+      return null;
+    }
+  };
   return (
     <BlurView tint="dark" intensity={60} style={styles.container}>
       <View style={getSize()}>
@@ -48,7 +82,36 @@ const ImageScreen = () => {
           onLoad={onLoad}
         />
       </View>
-      <Button title="Back" onPress={() => router.back()}></Button>
+      {/* Action */}
+      <View style={styles.buttons}>
+        <Animated.View entering={FadeInDown.springify()}>
+          <Pressable style={styles.button} onPress={() => router.back()}>
+            <Octicons name="x" size={24} color="white" />
+          </Pressable>
+        </Animated.View>
+        <Animated.View entering={FadeInDown.springify().delay(100)}>
+          {status == "downloading" ? (
+            <View style={styles.button}>
+              <ActivityIndicator size="small" color="white" />
+            </View>
+          ) : (
+            <Pressable style={styles.button} onPress={handleDownImage()}>
+              <Octicons name="download" size={24} color="white" />
+            </Pressable>
+          )}
+        </Animated.View>
+        <Animated.View entering={FadeInDown.springify().delay(200)}>
+          {status == "sharing" ? (
+            <View style={styles.button}>
+              <ActivityIndicator size="small" color="white" />
+            </View>
+          ) : (
+            <Pressable style={styles.button} onPress={handleShareImage()}>
+              <Enttypo name="share" size={22} color="white" />
+            </Pressable>
+          )}
+        </Animated.View>
+      </View>
     </BlurView>
   );
 };
@@ -73,6 +136,21 @@ const styles = StyleSheet.create({
     height: "100%",
     justifyContent: "center",
     alignItems: "center",
+  },
+  buttons: {
+    marginTop: 40,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 50,
+  },
+  button: {
+    height: hp(6),
+    width: wp(6),
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.2)",
+    borderRadius: theme.radius.lg,
+    borderCurve: "continuous",
   },
 });
 
