@@ -15,6 +15,7 @@ import Categories from "../../components/categories";
 import { apiCall } from "../../api";
 import ImageGrid from "../../components/imageGrid";
 import FiltersModal from "../../components/filtersModal";
+import { useRouter } from "expo-router";
 
 var page = 1;
 
@@ -24,6 +25,7 @@ const HomeScreen = () => {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState(null);
   const searchInputRef = useRef(null);
+  const router = useRouter();
   const [images, setImages] = useState([]);
   const scrollRef = useRef(null);
   const [filters, setFilters] = useState(null);
@@ -281,7 +283,9 @@ const HomeScreen = () => {
             </View>
           )}
           {/* Images Masonry Grid */}
-          <View>{images.length > 0 && <ImageGrid images={images} />}</View>
+          <View>
+            {images.length > 0 && <ImageGrid images={images} router={router} />}
+          </View>
           {/* Loading */}
           <View
             style={{ marginBottom: 70, marginTop: images.length > 0 ? 10 : 70 }}

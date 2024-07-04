@@ -3,16 +3,22 @@ import { Image } from "expo-image";
 import { getImageSize } from "../helpers/common";
 import { theme } from "../constants/theme";
 
-const ImageCard = ({ item, index }) => {
+const ImageCard = ({ item, columns, index, router }) => {
   const getImageHeight = () => {
     let { imageHeight: height, imageWidth: width } = item;
     return { height: getImageSize(height, width) };
   };
+
   const isLastrow = () => {
     return (index + 1) % columns === 0;
   };
   return (
-    <Pressable style={[styles.imageWrapper, !isLastrow() && styles.spacing]}>
+    <Pressable
+      onPress={() =>
+        router.push({ pathName: "home/image", params: { ...itemData } })
+      }
+      style={[styles.imageWrapper, !isLastrow() && styles.spacing]}
+    >
       <Image
         style={[styles.image, getImageHeight()]}
         source={item?.webformatURL}
