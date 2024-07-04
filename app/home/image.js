@@ -9,6 +9,7 @@ import {
   ActivityIndicatorComponent,
   Pressable,
   Alert,
+  Platform,
 } from "react-native";
 import { theme } from "../../constants/theme";
 import { hp, wp } from "../../helpers/common";
@@ -44,17 +45,31 @@ const ImageScreen = () => {
     };
   };
   const handleDownImage = async () => {
-    setStatus("downloading");
-    let uri = await downloadImage();
-    if (uri) {
-      await Sharing.shareAsync(uri);
+    if (Platform.OS == "web") {
+      const anchor = document.createElement("a");
+      anchor.href = imageUrl;
+      anchor.target = "_blank";
+      anchor.download = fileName || "download";
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+    } else {
+      setStatus("downloading");
+      let uri = await downloadImage();
+      if (uri) {
+        await Sharing.shareAsync(uri);
+      }
     }
   };
   const handleShareImage = async () => {
-    setStatus("sharing");
-    let uri = await downloadImage();
-    if (uri) {
-      showToast("Image Downloaded.");
+    if (Platform.OS == "web") {
+      showToast("Link Copied.");
+    } else {
+      setStatus("sharing");
+      let uri = await downloadImage();
+      if (uri) {
+        showToast("Image Downloaded.");
+      }
     }
   };
   const downloadImage = async () => {
